@@ -1,0 +1,34 @@
+{
+	"name": "pants-test",
+
+	"dockerComposeFile": [
+		"../docker-compose-dev.yaml"
+	],
+
+  	"workspaceFolder": "/home/nonroot/code",
+
+    "mounts": [
+		// create a volume to persist the user profile (this allows history to be stored)
+        "source=profile,target=/root,type=volume",
+		// create an anonymous volume that gets destroyed on rebuild, which allows VS Code to reinstall extensions and dotfiles
+        "target=/root/.vscode-server,type=volume"
+    ],
+
+	"service": "pants-test",
+
+	"customizations": {
+        "vscode": {
+			"extensions": [
+				"ms-python.python",
+				"charliermarsh.ruff",
+				"ms-python.black-formatter"
+            ]
+        }
+    },
+
+	"postCreateCommand": {
+		"set-up dev env (pants venv, pre-commit)": "dev/setup_dev_env.sh"
+	},
+
+	"remoteUser": "nonroot"
+}

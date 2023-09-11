@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  pants-test:
+    image: pants-test
+    env_file: .env
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION}
+    volumes:
+      - .:/home/nonroot/code:cached
+    command: /bin/sh -c "while sleep 1000; do :; done"

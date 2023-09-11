@@ -1,0 +1,45 @@
+ARG PYTHON_VERSION
+
+FROM python:${PYTHON_VERSION}-slim-bookworm
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y \
+    git \
+    # for installing Pants.
+    curl \
+    # for sudo support for non-root user.
+    sudo \
+    # Required by Pants/PyRight (maybe until this is fixed https://github.com/pantsbuild/pants/issues/19778)
+    xz-utils
+RUN apt-get purge --auto-remove
+RUN apt-get clean
+
+# Set the locale to en_US.UTF-8, because vscode git(gui)/pre-commit doesn't like not having this set.
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install locales locales-all
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
+# Create a non-root user (see https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user#_creating-a-nonroot-user)
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+ARG USER_NAME=nonroot
+RUN groupadd --gid $USER_GID $USER_NAME \
+    && useradd --create-home --home-dir /home/$USER_NAME --shell /bin/bash --uid $USER_UID --gid $USER_GID $USER_NAME \
+    # Add sudo support.
+    && echo $USER_NAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER_NAME \
+    && chmod 0440 /etc/sudoers.d/$USER_NAME
+USER $USER_NAME
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+ENV WORKDIR="/home/$USER_NAME/code"
+ENV PYTHONPATH="$PYTHONPATH:$WORKDIR/src:$WORKDIR/tests"
+ENV VENV_PATH="$WORKDIR/dist/export/python/virtualenvs/python-default/${PYTHON_VERSION}"
+# PATH required for Pants.
+ENV PATH="$PATH:/home/$USER_NAME/bin:/home/$USER_NAME/.local/bin"
+
+COPY dev /tmp/dev
+RUN /tmp/dev/install-pants.sh
+
+WORKDIR ${WORKDIR}

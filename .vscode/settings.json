@@ -1,0 +1,14 @@
+{
+    "python.defaultInterpreterPath": "${env:VENV_PATH}/bin/python",
+
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+
+    "python.analysis.typeCheckingMode": "basic",
+
+    "gitlens.plusFeatures.enabled": false,
+    "git.allowNoVerifyCommit": true  // added so a developer can override pre-commit
+}
