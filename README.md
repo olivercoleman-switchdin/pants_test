@@ -15,3 +15,5 @@ You must wait until you see the line:
 ```Done. Press any key to close the terminal.```
 
 before doing anything other than opening and editing files (for example do not reload the window).
+
+**You will then likely need to reload (or open and close) the window for VS Code to use the newly build Pants venv**
